@@ -8,11 +8,10 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-import static java.util.concurrent.CompletableFuture.runAsync;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 class TestesDeSistemaApplicationTests {
@@ -72,30 +71,31 @@ class TestesDeSistemaApplicationTests {
         // when
         WebElement element = driver.findElement(By.id(searchInputId));
         element.sendKeys(searchText);
-        CompletableFuture<Void> async = runAsync(element::submit);
+        element.submit();
+
+        Thread.sleep(1500);      // done this way because submit() is asynchronolous
 
         // then
-        async.thenRun(() -> assertEquals(newUrl, driver.getCurrentUrl()));      // done this way because submit() is asynchronolous
+        assertEquals(newUrl, driver.getCurrentUrl());
     }
 
     @Test
     @DisplayName("Given a contact us button, when clicked, then get in touch form should appear")
-    void Given_ContactUsButton_When_Cliked_Then_GetInTouchFormShouldAppear() {
+    void Given_ContactUsButton_When_Cliked_Then_GetInTouchFormShouldAppear() throws InterruptedException {
         // given
-        final String contactUsButton = "launcher-button";
-        final String getInTouchForm = "main-page";
+        final String contactUsButton = "launcher-frame";
+        final String getInTouchForm = "freshworks-frame-wrapper";
 
+        // when
+        Thread.sleep(1500);     // done this because the button only appear when the page is already fully loaded
 
-        runAsync(() -> driver.get(URL)).thenRun(() -> {      // done this because the button only appear when the page is already fully loaded
-            // when
-            WebElement element = driver.findElement(By.className(contactUsButton));
-            element.click();
+        WebElement element = driver.findElement(By.id(contactUsButton));
+        element.click();
 
-            // then
-            assertDoesNotThrow(() -> driver.findElement(By.className(getInTouchForm)));
-            System.out.println("After assert");
-        });
+        Thread.sleep(300);     // done this because there is a delay for the form to appear
+
+        // then
+        assertDoesNotThrow(() -> driver.findElement(By.id(getInTouchForm)));
     }
-
 
 }
