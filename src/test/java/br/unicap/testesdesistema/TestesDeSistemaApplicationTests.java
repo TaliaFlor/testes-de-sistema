@@ -78,4 +78,24 @@ class TestesDeSistemaApplicationTests {
         async.thenRun(() -> assertEquals(newUrl, driver.getCurrentUrl()));      // done this way because submit() is asynchronolous
     }
 
+    @Test
+    @DisplayName("Given a contact us button, when clicked, then get in touch form should appear")
+    void Given_ContactUsButton_When_Cliked_Then_GetInTouchFormShouldAppear() {
+        // given
+        final String contactUsButton = "launcher-button";
+        final String getInTouchForm = "main-page";
+
+
+        runAsync(() -> driver.get(URL)).thenRun(() -> {      // done this because the button only appear when the page is already fully loaded
+            // when
+            WebElement element = driver.findElement(By.className(contactUsButton));
+            element.click();
+
+            // then
+            assertDoesNotThrow(() -> driver.findElement(By.className(getInTouchForm)));
+            System.out.println("After assert");
+        });
+    }
+
+
 }
